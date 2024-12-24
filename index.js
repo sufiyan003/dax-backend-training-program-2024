@@ -4,6 +4,7 @@ import express from 'express';
 import BlogRoutes from './blog/blog.routes.js'
 
 const app = express()
+// Hello
 
 async function main() {
     // Connect to MongoDB
