@@ -11,6 +11,9 @@ class BlogController {
     }
 
     static async getAllBlogs(req, res) {
+        console.log('====================================');
+        console.log(process.env.MONGODB_URI);
+        console.log('====================================');
         try {
             const blogs = await BlogService.getAllBlogs();
             res.status(200).json(blogs);
