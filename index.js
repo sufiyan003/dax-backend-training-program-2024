@@ -1,14 +1,30 @@
 
 import mongoose from 'mongoose';
 import express from 'express';
-import BlogRoutes from './blog/blog.routes.js'
-
+import { config } from 'dotenv'
+import BlogRoutes from './src/app/blog/blog.routes.js'
+import z from 'zod'
 const app = express()
 // Hello
 
+config();
+
+const env_validator_schema = z.object({
+    MONGODB_URI: z.string().min(1, "Title is required"),
+    APP_PORT: z.string().min(1, "Content is required"),
+});
+
+
 async function main() {
     // Connect to MongoDB
-    const mongoURI = 'mongodb://127.0.0.1:27017/blogs';
+    const mongoURI = process.env.MONGODB_URI;
+
+    try {
+        env_validator_schema.parse(process.env);
+    } catch (err) {
+        console.log("Error", err)
+    }
+
     mongoose.connect(mongoURI, {
         useNewUrlParser: true,
         useUnifiedTopology: true,
@@ -31,6 +47,6 @@ app.use((err, req, res, next) => {
     res.status(500).send({ msg: 'Something broke!', detail: err.stack });
 });
 
-app.listen(3000, () => {
-    console.log(`Example app listening on port`)
+app.listen(process.env.APP_PORT, () => {
+    console.log(`Example app listening on port ${process.env.APP_PORT}`)
 });

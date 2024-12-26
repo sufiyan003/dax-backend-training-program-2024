@@ -1,10 +1,12 @@
 import express from 'express';
 import BlogController from './blog.controller.js';
+import validateBody from '../../shared/middlwear/validateBody.js';
+import { createBlogSchema } from './schema/create-blog.validator.js';
 
 const router = express.Router();
 
 // Create a blog
-router.post('/', BlogController.createBlog);
+router.post('/', validateBody(createBlogSchema), BlogController.createBlog);
 
 // Get all blogs
 router.get('/', BlogController.getAllBlogs);
