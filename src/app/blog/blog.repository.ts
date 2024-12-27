@@ -1,7 +1,7 @@
-import Blog from './Blog.model';
+import Blog, { IBlog } from './Blog.model';
 
 class BlogRepository {
-  async create(data) {
+  async create(data: Omit<IBlog, 'createdAt' | 'updatedAt'>) {
     const blog = new Blog(data);
     return await blog.save();
   }

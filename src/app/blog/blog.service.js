@@ -1,8 +1,10 @@
-import Blog from './Blog.model.js';
+import Blog from './Blog.model';
+import BlogRepository from './blog.repository'
 
 class BlogService {
     static async createBlog(data) {
         try {
+            // BlogRepository.create({ createdAt: new Date() })
             const blog = new Blog(data);
             return await blog.save();
         } catch (error) {
