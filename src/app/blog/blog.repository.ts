@@ -1,20 +1,24 @@
 import Blog, { IBlog } from './Blog.model';
 
 class BlogRepository {
-  async create(data: Omit<IBlog, 'createdAt' | 'updatedAt'>) {
+  // Create a new blog post
+  async create(data: Omit<IBlog, 'createdAt' | 'updatedAt'>): Promise<IBlog> {
     const blog = new Blog(data);
     return await blog.save();
   }
 
-  async findAll() {
+  // Find all blog posts
+  async findAll(): Promise<IBlog[]> {
     return await Blog.find();
   }
 
-  async findById(id) {
+  // Find a blog post by its ID
+  async findById(id: string): Promise<IBlog | null> {
     return await Blog.findById(id);
   }
 
-  async updateById(id, data) {
+  // Update a blog post by its ID
+  async updateById(id: string, data: Partial<Omit<IBlog, 'createdAt' | 'updatedAt'>>): Promise<IBlog | null> {
     return await Blog.findByIdAndUpdate(
       id,
       { ...data, updatedAt: Date.now() },
@@ -22,7 +26,8 @@ class BlogRepository {
     );
   }
 
-  async deleteById(id) {
+  // Delete a blog post by its ID
+  async deleteById(id: string): Promise<IBlog | null> {
     return await Blog.findByIdAndDelete(id);
   }
 }
