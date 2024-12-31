@@ -9,13 +9,14 @@ const router = express.Router();
 router.post(
   '/',
   validateBody(createBlogSchema),
-  async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await BlogController.createBlog(req, res);
-    } catch (err) {
-      next(err);
-    }
-  }
+  BlogController.createBlog,
+  // async (req: Request, res: Response, next: NextFunction) => {
+  //   try {
+  //     await BlogController.createBlog(req, res);
+  //   } catch (err) {
+  //     next(err);
+  //   }
+  // }
 );
 
 // Get all blogs
@@ -45,6 +46,7 @@ router.get(
 // Update a blog by ID
 router.put(
   '/:id',
+  validateBody(createBlogSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       await BlogController.updateBlog(req, res);

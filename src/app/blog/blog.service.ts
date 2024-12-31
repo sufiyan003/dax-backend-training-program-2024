@@ -7,6 +7,7 @@ interface BlogCreateData {
   author: string;
 }
 
+// TODO: Implement the BlogRespository with Model calling
 class BlogService {
   // Create a blog
   static async createBlog(data: BlogCreateData): Promise<IBlog> {

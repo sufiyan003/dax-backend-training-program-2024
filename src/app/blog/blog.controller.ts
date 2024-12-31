@@ -1,11 +1,13 @@
 import { Request, Response } from 'express';
 import BlogService from './blog.service';
+import { CreateBlogBody } from './schema/create-blog.validator';
 
 class BlogController {
     // Create a blog
     static async createBlog(req: Request, res: Response): Promise<Response> {
         try {
-            const blog = await BlogService.createBlog(req.body);
+            const body = req.body as CreateBlogBody;
+            const blog = await BlogService.createBlog(body);
             return res.status(201).json(blog);
         } catch (error: any) {
             return res.status(400).json({ error: error.message });
@@ -38,6 +40,7 @@ class BlogController {
     // Update a blog by ID
     static async updateBlog(req: Request, res: Response): Promise<Response> {
         try {
+            // TODO: Ensure req.body is of type Zod schema
             const blog = await BlogService.updateBlog(req.params.id, req.body);
             if (!blog) {
                 return res.status(404).json({ error: 'Blog not found' });
