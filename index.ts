@@ -1,3 +1,4 @@
+import { AccessRoutes } from './src/app/rbac/access.routes';
 import mongoose from 'mongoose';
 import express, { Request, Response, NextFunction, Express } from 'express';
 import { config } from 'dotenv';
@@ -35,6 +36,7 @@ app.use(express.json());
 
 // Modular Routes
 app.use('/blogs', BlogRoutes);
+app.use('/users', new AccessRoutes().router)
 
 // Global Error Handling Middleware
 app.use((err: any, _req: Request, _res: Response, _next: NextFunction) => {

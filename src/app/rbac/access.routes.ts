@@ -1,35 +1,39 @@
 import { Router } from 'express';
-import validator from '../../../helpers/validator';
-import { signupSchema, userCredential } from "../../../utils/joi.schema";
 import { AccessController } from './access.controller';
+// import validator from '../../shared/middleware/validateBody';
+// import { signupSchema, userCredential } from "../../../utils/joi.schema";
+// import { AccessController } from './access.controller';
 
 export class AccessRoutes {
 
     readonly router: Router = Router();
-    readonly controller: AccessController = new AccessController()
+    controller = new AccessController();
 
     constructor() {
         this.initRoutes();
     }
 
     initRoutes(): void {
+        console.log("Access Routes initialized!");
 
         this.router.post(
             '/signup',
-            validator(signupSchema),
             this.controller.signup
+            // validator(signupSchema),
         )
-
-        // this.router.post(
-        //   '/driver/signup',
-        //   validator(driverSignupSchema),
-        //   this.controller.signupDriver
-        // )
 
         this.router.post(
             '/signin',
-            validator(userCredential),
             this.controller.signin
+            // validator(userCredential),
+            // this.controller.signin
+        )
+
+        this.router.post(
+            '/sign-out',
+            this.controller.signin
+            // validator(userCredential),
+            // this.controller.signin
         )
 
         // this.router.get(

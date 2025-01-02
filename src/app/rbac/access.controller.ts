@@ -1,124 +1,176 @@
 import { Response, Request, NextFunction } from "express"
+import { UserRepository } from "./user.repository"
+import bcrypt from 'bcrypt'
 // import { Types } from 'mongoose';
 // import crypto from 'crypto';
-import asyncHandler from "../../../helpers/async";
-import UserRepo from './user.repository';
-import { BadRequestError, AuthFailureError } from '../../../core/ApiError';
-import { generateTokenKey } from "../../../helpers/tokenKeyGenerator";
-import { generateOTP } from "../../../helpers/otpGenerate";
-import User from './User';
-import Role from '../roles/Role';
-import { SuccessResponse, SuccessMsgResponse, TokenRefreshResponse } from '../../../core/ApiResponse';
-import _ from 'lodash';
-import { createTokens, getAccessToken, validateTokenData } from '../../../utils/authUtils';
-import KeystoreRepo from './keystore.repository';
-import { TokenService } from '../token/token.service'
-import Token from '../token/Token'
-import { comparePassword } from "../../../utils/password";
+// import asyncHandler from "../../../helpers/async";
+// import UserRepo from './user.repository';
+// import User from './User';
+// import { BadRequestError, AuthFailureError } from '../../../core/ApiError';
+// import { generateTokenKey } from "../../../helpers/tokenKeyGenerator";
+// import { generateOTP } from "../../../helpers/otpGenerate";
+// import Role from '../roles/Role';
+// import { SuccessResponse, SuccessMsgResponse, TokenRefreshResponse } from '../../../core/ApiResponse';
+// import _ from 'lodash';
+// import { createTokens, getAccessToken, validateTokenData } from '../../../utils/authUtils';
+// import KeystoreRepo from './keystore.repository';
+// import { TokenService } from '../token/token.service'
+// import Token from '../token/Token'
+// import { comparePassword } from "../../../utils/password";
 // import { AccessService } from './access.service'
-import { generateCode } from '../../../helpers/generate';
+// import { generateCode } from '../../../helpers/generate';
 // import { sendMail } from "../../../utils/email";
 // import JWT from '../../../core/JWT';
 // import { validateTokenData, createTokens, getAccessToken } from '../../../utils/authUtils';
 
 export class AccessController {
 
-    private tokenService: TokenService = new TokenService()
+    // private tokenService: TokenService = new TokenService()
     // readonly service: AccessService = new AccessService()
 
+    constructor() {
+        console.log("I am AccessController")
+    }
 
+    signup = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const body = req.body;
+            // 1st: find user
+            const user = await new UserRepository().findByEmail(body.email);
+            if (user) throw new Error("account alrweady exist");
+            console.log({ user });
 
-    signup = asyncHandler(
-        async (req: any, res: Response, next: NextFunction): Promise<Response | void> => {
-            const user = await UserRepo.findByEmail(req.body.email);
-            if (user) throw new BadRequestError('User already registered');
-            // if (user && user.email) throw new BadRequestError('User already registered');
+            // 2nd: has paasword
+            const saltRounds = 10;
+            const hashedPassword = bcrypt.hashSync(body.password, saltRounds);
+            console.log({ hashedPassword });
+            // '$2b$10$XZboP.R7URKipG2imJlSCuosbPbRYVnM9rVB9P4uiiRvhe8ucJFFi'
+            // 2nd: Create user
 
-            const accessTokenKey = generateTokenKey();
-            const refreshTokenKey = generateTokenKey();
+            const createdUser = await new UserRepository().create({
+                email: body.email,
+                name: "Abcd",
+                password: hashedPassword
+            });
 
-            const { user: createdUser, keystore } = await UserRepo.create(
-                req.body as User,
-                accessTokenKey,
-                refreshTokenKey,
-                "USER",
-            );
-            if (!createdUser) throw new BadRequestError('User creation field!');
-            const tokens = await createTokens(createdUser, keystore.primaryKey, keystore.secondaryKey);
+            // 3rd: encrypt password
 
-            const { token } = await this.tokenService.createToken({
-                shot_code: generateOTP(),
-                token: generateTokenKey(),
-                type: 'PHONE_VERIFY',
-                userId: createdUser.id,
-                expireAt: new Date()
-            } as Token)
-
-            // if (createdUser && createdUser.phone) {
-            //   // @ts-ignore
-            //   console.log({ to: createdUser.phone, text: token?.shot_code });
-            // }
-
-            // let link = `http://52.192.208.76/api/v1/auth/email-verify?token=${token?.token}&user=${token?.userId}`
-            // if (createdUser && createdUser.email) {
-            //   // @ts-ignore
-            //   sendMail({ to: createdUser.email, text: link })
-            // }
-
-            console.log("Token: ", token)
-            new SuccessResponse('Signup Successful', {
-                user: _.pick(createdUser, ['id', 'first_name', 'last_name', 'email', 'phone_status', 'role', 'profilePicUrl', 'gender']),
-                tokens,
-                token,
-            }).send(res);
+            res.send({ msg: "Signup success", user, createdUser })
+        } catch (error) {
+            next(error)
         }
-    )
+    }
 
-    signin = asyncHandler(
-        async (req: any, res: Response, next: NextFunction): Promise<Response | void> => {
+    signin = async (req: Request, res: Response, next: NextFunction) => {
+        try {
+            const body = req.body;
+            // 1st: find user
+            const user = await new UserRepository().findByEmail(body.email);
+            if (!user) throw new Error("Account not found, Please signup first")
+            console.log({ user });
 
-            const user = await UserRepo.findByEmail(req.body.email);
-            console.log('====================================');
-            console.log(user);
-            console.log('====================================');
-            if (!user) throw new BadRequestError('Invalid credentials');
-            if (!user.password) throw new BadRequestError('Credential not set');
-            if (!user.status) throw new BadRequestError('User InActive');
-
-            if (user.phone_status !== "VERIFIED") {
-                const { token } = await this.tokenService.createToken({
-                    shot_code: generateOTP(),
-                    token: generateTokenKey(),
-                    type: 'PHONE_VERIFY',
-                    userId: user.id,
-                    expireAt: new Date()
-                } as Token)
-
-                // let link = `http://localhost:8001/api/v1/auth/email-verify?token=${token?.token}&user=${token?.userId}`
-                // if (user && user.email) {
-                //   // @ts-ignore
-                //   sendMail({ to: user.email, text: link, subject: "Email Verification" })
-                // }
-                console.log("Signin OTP: ", token)
-                throw new BadRequestError('please verify your phone!');
+            const isPasswordCorrect = bcrypt.compareSync(body.password, user.password); // true
+            if (!isPasswordCorrect) {
+                throw new Error("Invalid Credentianls")
             }
 
-            comparePassword(req.body.password, user.password)
-
-            const accessTokenKey = generateTokenKey();
-            const refreshTokenKey = generateTokenKey();
-
-            await KeystoreRepo.create(user.id, accessTokenKey, refreshTokenKey);
-
-            const tokens = await createTokens(user, accessTokenKey, refreshTokenKey);
-
-            new SuccessResponse('Login Success', {
-                user: _.pick(user, ['id', 'first_name', 'last_name', 'email', 'profile_picture', 'role', 'phone_status', 'profilePicUrl', 'gender']),
-                tokens: tokens,
-            }).send(res);
-
+            res.send({ msg: "Signin success", user });
+        } catch (error) {
+            next(error)
         }
-    )
+    }
+
+    // signup = asyncHandler(
+    //     async (req: any, res: Response, next: NextFunction): Promise<Response | void> => {
+    //         const user = await UserRepo.findByEmail(req.body.email);
+    //         if (user) throw new BadRequestError('User already registered');
+    //         // if (user && user.email) throw new BadRequestError('User already registered');
+
+    //         const accessTokenKey = generateTokenKey();
+    //         const refreshTokenKey = generateTokenKey();
+
+    //         const { user: createdUser, keystore } = await UserRepo.create(
+    //             req.body as User,
+    //             accessTokenKey,
+    //             refreshTokenKey,
+    //             "USER",
+    //         );
+    //         if (!createdUser) throw new BadRequestError('User creation field!');
+    //         const tokens = await createTokens(createdUser, keystore.primaryKey, keystore.secondaryKey);
+
+    //         const { token } = await this.tokenService.createToken({
+    //             shot_code: generateOTP(),
+    //             token: generateTokenKey(),
+    //             type: 'PHONE_VERIFY',
+    //             userId: createdUser.id,
+    //             expireAt: new Date()
+    //         } as Token)
+
+    //         // if (createdUser && createdUser.phone) {
+    //         //   // @ts-ignore
+    //         //   console.log({ to: createdUser.phone, text: token?.shot_code });
+    //         // }
+
+    //         // let link = `http://52.192.208.76/api/v1/auth/email-verify?token=${token?.token}&user=${token?.userId}`
+    //         // if (createdUser && createdUser.email) {
+    //         //   // @ts-ignore
+    //         //   sendMail({ to: createdUser.email, text: link })
+    //         // }
+
+    //         console.log("Token: ", token)
+    //         new SuccessResponse('Signup Successful', {
+    //             user: _.pick(createdUser, ['id', 'first_name', 'last_name', 'email', 'phone_status', 'role', 'profilePicUrl', 'gender']),
+    //             tokens,
+    //             token,
+    //         }).send(res);
+    //     }
+    // )
+
+    // signin = asyncHandler(
+    //     async (req: any, res: Response, next: NextFunction): Promise<Response | void> => {
+
+    //         const user = await UserRepo.findByEmail(req.body.email);
+    //         console.log('====================================');
+    //         console.log(user);
+    //         console.log('====================================');
+    //         if (!user) throw new BadRequestError('Invalid credentials');
+    //         if (!user.password) throw new BadRequestError('Credential not set');
+    //         if (!user.status) throw new BadRequestError('User InActive');
+
+    //         if (user.phone_status !== "VERIFIED") {
+    //             const { token } = await this.tokenService.createToken({
+    //                 shot_code: generateOTP(),
+    //                 token: generateTokenKey(),
+    //                 type: 'PHONE_VERIFY',
+    //                 userId: user.id,
+    //                 expireAt: new Date()
+    //             } as Token)
+
+    //             // let link = `http://localhost:8001/api/v1/auth/email-verify?token=${token?.token}&user=${token?.userId}`
+    //             // if (user && user.email) {
+    //             //   // @ts-ignore
+    //             //   sendMail({ to: user.email, text: link, subject: "Email Verification" })
+    //             // }
+    //             console.log("Signin OTP: ", token)
+    //             throw new BadRequestError('please verify your phone!');
+    //         }
+
+    //         comparePassword(req.body.password, user.password)
+
+    //         const accessTokenKey = generateTokenKey();
+    //         const refreshTokenKey = generateTokenKey();
+
+    //         await KeystoreRepo.create(user.id, accessTokenKey, refreshTokenKey);
+
+    //         const tokens = await createTokens(user, accessTokenKey, refreshTokenKey);
+
+    //         new SuccessResponse('Login Success', {
+    //             user: _.pick(user, ['id', 'first_name', 'last_name', 'email', 'profile_picture', 'role', 'phone_status', 'profilePicUrl', 'gender']),
+    //             tokens: tokens,
+    //         }).send(res);
+
+    //     }
+    // )
 
 
     // getMe = asyncHandler(
