@@ -1,47 +1,55 @@
-
+import { AccessRoutes } from './src/app/rbac/access.routes';
 import mongoose from 'mongoose';
 import express, { Request, Response, NextFunction, Express } from 'express';
-import { config } from 'dotenv'
-import BlogRoutes from './src/app/blog/blog.routes.js'
-import * as z from 'zod'
+import { config } from 'dotenv';
+import BlogRoutes from './src/app/blog/blog.routes'; // Correct import without .js extension
+import * as z from 'zod';
 
-config();
+config(); // Load environment variables
 
-const app: Express = express()
+const app: Express = express();
 
-const env_validator_schema = z.object({
-    MONGODB_URI: z.string().min(1, "Title is required"),
-    APP_PORT: z.string().min(1, "Content is required"),
+// Environment variables validation schema
+const envValidatorSchema = z.object({
+    MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
+    APP_PORT: z.string().min(1, "APP_PORT is required"),
 });
 
-
 async function main() {
-    // Connect to MongoDB
-    // const mongoURI = process.env.MONGODB_URI;
-    const env =  env_validator_schema.parse(process.env);
+    try {
+        // Validate environment variables
+        const env = envValidatorSchema.parse(process.env);
 
-    mongoose.connect(env.MONGODB_URI, {
-        // useNewUrlParser: true,
-        // useUnifiedTopology: true,
-    });
-    mongoose.connection.on('connected', () => console.log('Connected to MongoDB'));
-    mongoose.connection.on('error', (err) => console.error('MongoDB connection error:', err));
+        // Connect to MongoDB
+        await mongoose.connect(env.MONGODB_URI);
+        console.log('Connected to MongoDB');
+    } catch (error) {
+        console.error('Error initializing application:', error);
+        process.exit(1); // Exit the process if the connection fails
+    }
 }
 
 main();
-// jhjkho
 
+// Middleware to parse JSON requests
 app.use(express.json());
 
-// All Moduler Routes
+// Modular Routes
 app.use('/blogs', BlogRoutes);
+app.use('/users', new AccessRoutes().router)
 
-app.use((err: any, req: Request, res: Response, next: NextFunction) => {
-    console.log("I am in End")
-    // console.error(err.stack)
-    res.status(500).send({ msg: 'Something broke!', detail: err.stack });
+// Global Error Handling Middleware
+app.use((err: any, _req: Request, _res: Response, _next: NextFunction) => {
+    console.error('Error occurred:', err.stack || err.message);
+    _res.status(500).json({
+        message: 'Something went wrong!',
+        error: err.message,
+        stack: process.env.NODE_ENV === 'development' ? err.stack : undefined, // Only expose stack trace in development
+    });
 });
 
-app.listen(process.env.APP_PORT, () => {
-    console.log(`Example app listening on port ${process.env.APP_PORT}`)
+// Start the server
+const port = process.env.APP_PORT || 3000;
+app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
 });
