@@ -30,8 +30,8 @@ export class AccessRoutes {
         )
 
         this.router.post(
-            '/sign-out',
-            this.controller.signin
+            '/verify',
+            this.controller.verify
             // validator(userCredential),
             // this.controller.signin
         )

@@ -1,8 +1,8 @@
-import { AccessRoutes } from './src/app/rbac/access.routes';
+import { AccessRoutes } from './app/rbac/access.routes';
 import mongoose from 'mongoose';
 import express, { Request, Response, NextFunction, Express } from 'express';
 import { config } from 'dotenv';
-import BlogRoutes from './src/app/blog/blog.routes'; // Correct import without .js extension
+import BlogRoutes from './app/blog/blog.routes'; // Correct import without .js extension
 import * as z from 'zod';
 
 config(); // Load environment variables
@@ -13,6 +13,7 @@ const app: Express = express();
 const envValidatorSchema = z.object({
     MONGODB_URI: z.string().min(1, "MONGODB_URI is required"),
     APP_PORT: z.string().min(1, "APP_PORT is required"),
+    PRIVATE_KEY: z.string().min(1, "PRIVATE_KEY is required"),
 });
 
 async function main() {
