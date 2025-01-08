@@ -1,6 +1,7 @@
 import { Response, Request, NextFunction } from "express"
 import { UserRepository } from "./user.repository"
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken';
 // import { Types } from 'mongoose';
 // import crypto from 'crypto';
 // import asyncHandler from "../../../helpers/async";
@@ -23,6 +24,17 @@ import bcrypt from 'bcrypt'
 // import JWT from '../../../core/JWT';
 // import { validateTokenData, createTokens, getAccessToken } from '../../../utils/authUtils';
 
+interface JwtPayload {
+    userId: string;
+    iss?: string | undefined;
+    sub?: string | undefined;
+    aud?: string | string[] | undefined;
+    exp?: number | undefined;
+    nbf?: number | undefined;
+    iat?: number | undefined;
+    jti?: string | undefined;
+}
+
 export class AccessController {
 
     // private tokenService: TokenService = new TokenService()
@@ -40,20 +52,17 @@ export class AccessController {
             if (user) throw new Error("account alrweady exist");
             console.log({ user });
 
-            // 2nd: has paasword
+            // 2nd: hash paasword
             const saltRounds = 10;
             const hashedPassword = bcrypt.hashSync(body.password, saltRounds);
             console.log({ hashedPassword });
-            // '$2b$10$XZboP.R7URKipG2imJlSCuosbPbRYVnM9rVB9P4uiiRvhe8ucJFFi'
-            // 2nd: Create user
 
+            // 3nd: Create user
             const createdUser = await new UserRepository().create({
                 email: body.email,
                 name: "Abcd",
                 password: hashedPassword
             });
-
-            // 3rd: encrypt password
 
             res.send({ msg: "Signup success", user, createdUser })
         } catch (error) {
@@ -74,10 +83,44 @@ export class AccessController {
                 throw new Error("Invalid Credentianls")
             }
 
-            res.send({ msg: "Signin success", user });
+            // 4th: Create keystore & JWT token
+            // let token = null;
+            // TODO: Implement proper type safty for env
+            const token = jwt.sign(
+                { userId: user._id },
+                process.env.PRIVATE_KEY as string,
+                { algorithm: 'HS256' }
+            );
+            // (err, token) => {
+            //     console.log("JWT token created", err, token);
+            //     if (err) throw err;
+            //     token = token;
+            // }
+            res.send({ msg: "Signin success", user, token });
         } catch (error) {
             next(error)
         }
+    }
+
+    verify = async (req: Request, res: Response) => {
+        const token = req.body.token;
+        console.log({ header: req.headers });
+
+        // 1st: Decode token
+        const decoded = jwt.verify(token, process.env.PRIVATE_KEY as string) as JwtPayload;
+        console.log({ decoded });
+        decoded.userId;
+        // (err: any, decoded: any) => {
+        //     console.log({ err, decoded });
+        //     if (err) throw new Error("Invalid token")
+        //     console.log("Decoded token", decoded);
+        // }
+
+        // 2nd: Check if the paylod id is valid user id
+        const userExist = await new UserRepository().findById(decoded.userId);
+        if (!userExist) throw new Error("Invalid user id");
+
+        res.send({ msg: "Token verified", userExist })
     }
 
     // signup = asyncHandler(
