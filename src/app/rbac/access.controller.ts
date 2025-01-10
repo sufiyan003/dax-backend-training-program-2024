@@ -1,7 +1,7 @@
-import { Response, Request, NextFunction } from "express"
-import { UserRepository } from "./user.repository"
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
+import { NextFunction, Request, Response } from "express";
+import { JwtService } from "./jwt.service";
+import { UserRepository } from "./user.repository";
 // import { Types } from 'mongoose';
 // import crypto from 'crypto';
 // import asyncHandler from "../../../helpers/async";
@@ -24,21 +24,11 @@ import jwt from 'jsonwebtoken';
 // import JWT from '../../../core/JWT';
 // import { validateTokenData, createTokens, getAccessToken } from '../../../utils/authUtils';
 
-interface JwtPayload {
-    userId: string;
-    iss?: string | undefined;
-    sub?: string | undefined;
-    aud?: string | string[] | undefined;
-    exp?: number | undefined;
-    nbf?: number | undefined;
-    iat?: number | undefined;
-    jti?: string | undefined;
-}
-
 export class AccessController {
 
     // private tokenService: TokenService = new TokenService()
     // readonly service: AccessService = new AccessService()
+    readonly repo: UserRepository = new UserRepository();
 
     constructor() {
         console.log("I am AccessController")
@@ -75,8 +65,7 @@ export class AccessController {
             const body = req.body;
             // 1st: find user
             const user = await new UserRepository().findByEmail(body.email);
-            if (!user) throw new Error("Account not found, Please signup first")
-            console.log({ user });
+            if (!user || !user._id) throw new Error("Account not found, Please signup first")
 
             const isPasswordCorrect = bcrypt.compareSync(body.password, user.password); // true
             if (!isPasswordCorrect) {
@@ -84,18 +73,15 @@ export class AccessController {
             }
 
             // 4th: Create keystore & JWT token
-            // let token = null;
-            // TODO: Implement proper type safty for env
-            const token = jwt.sign(
-                { userId: user._id },
-                process.env.PRIVATE_KEY as string,
-                { algorithm: 'HS256' }
-            );
-            // (err, token) => {
-            //     console.log("JWT token created", err, token);
-            //     if (err) throw err;
-            //     token = token;
-            // }
+            const token = await JwtService.encode({
+                prm: String(user._id),
+                aud: "My Blog App",
+                iss: "Blog App Admin",
+                // exp: 15,
+                // iat: 15,
+                sub: "App"
+            });
+
             res.send({ msg: "Signin success", user, token });
         } catch (error) {
             next(error)
@@ -107,17 +93,10 @@ export class AccessController {
         console.log({ header: req.headers });
 
         // 1st: Decode token
-        const decoded = jwt.verify(token, process.env.PRIVATE_KEY as string) as JwtPayload;
-        console.log({ decoded });
-        decoded.userId;
-        // (err: any, decoded: any) => {
-        //     console.log({ err, decoded });
-        //     if (err) throw new Error("Invalid token")
-        //     console.log("Decoded token", decoded);
-        // }
+        const decoded = await JwtService.validate(token);
 
         // 2nd: Check if the paylod id is valid user id
-        const userExist = await new UserRepository().findById(decoded.userId);
+        const userExist = await new UserRepository().findById(decoded.prm);
         if (!userExist) throw new Error("Invalid user id");
 
         res.send({ msg: "Token verified", userExist })

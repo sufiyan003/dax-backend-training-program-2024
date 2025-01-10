@@ -1,10 +1,10 @@
-import User, { IUser } from './User';
+import User, { IUser, IUserDocument } from './User';
 
 export class UserRepository {
     // Create a new blog post
-    async create(data: Omit<IUser, 'createdAt' | 'updatedAt'>): Promise<IUser> {
+    async create(data: Omit<IUser, '_id' | 'createdAt' | 'updatedAt'>): Promise<IUserDocument> {
         const blog = new User(data);
-        return await blog.save();
+        return blog.save();
     }
 
     // Find all blog posts
@@ -18,7 +18,7 @@ export class UserRepository {
     }
 
     // Promise<IUserDocument | null>
-    async findByEmail(email: string) {
+    async findByEmail(email: string): Promise<IUser | null> {
         return User.findOne({ email });
     }
 
