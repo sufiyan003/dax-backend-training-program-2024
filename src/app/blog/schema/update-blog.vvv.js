@@ -1,1 +1,0 @@
-// TODO: Update blog schema (all fields are optional)

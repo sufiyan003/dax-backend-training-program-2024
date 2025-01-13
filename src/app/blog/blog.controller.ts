@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import BlogService from './blog.service';
 import { CreateBlogBody } from './schema/create-blog.validator';
+import { UpdateBlogBody } from './schema/update-blog.valdation';
+
 
 class BlogController {
     // Create a blog
@@ -41,7 +43,8 @@ class BlogController {
     static async updateBlog(req: Request, res: Response): Promise<Response> {
         try {
             // TODO: Ensure req.body is of type Zod schema
-            const blog = await BlogService.updateBlog(req.params.id, req.body);
+            const body = req.body as UpdateBlogBody;
+            const blog = await BlogService.updateBlog(req.params.id, body);
             if (!blog) {
                 return res.status(404).json({ error: 'Blog not found' });
             }
