@@ -1,24 +1,15 @@
 import { IBlog } from './Blog.model';
 import BlogRepository from './blog.repository';
+import { CreateBlogBody } from './schema/create-blog.validator';
+import { UpdateBlogBody } from './schema/update-blog.valdation';
 
 
 // Defining the type for blog creation data
 
-interface BlogCreateData{
-  title: string;
-  content: string;
-  author: string;
-}
-
-interface UpdatedCreateData{
-  title?: string | undefined;
-  content?: string | undefined;
-  author?: string | undefined;
-}
 // TODO: Implement the BlogRespository with Model calling
 class BlogService {
   // Create a blog
-  static async createBlog(data: BlogCreateData): Promise<IBlog> {
+  async createBlog(data: CreateBlogBody): Promise<IBlog> {
     try {
       return await BlogRepository.create(data);
     } catch (error: unknown) {
@@ -31,7 +22,7 @@ class BlogService {
   }
 
   // Get all blogs
-  static async getAllBlogs(): Promise<IBlog[]> {
+  async getAllBlogs(): Promise<IBlog[]> {
     try {
       return await BlogRepository.findAll();
     } catch (error: unknown) {
@@ -44,7 +35,7 @@ class BlogService {
   }
 
   // Get a single blog by ID
-  static async getBlogById(id: string): Promise<IBlog | null> {
+  async getBlogById(id: string): Promise<IBlog | null> {
     try {
       const blog = await BlogRepository.findById(id);
       if (!blog) throw new Error('Blog not found');
@@ -59,7 +50,7 @@ class BlogService {
   }
 
   // Update a blog by ID
-  static async updateBlog(id: string, data: Partial<UpdatedCreateData>): Promise<IBlog | null> {
+  async updateBlog(id: string, data: UpdateBlogBody): Promise<IBlog | null> {
     try {
       const updatedBlog = await BlogRepository.updateById(id, data);
       if (!updatedBlog) throw new Error('Blog not found');
@@ -74,7 +65,7 @@ class BlogService {
   }
 
   // Delete a blog by ID
-  static async deleteBlog(id: string): Promise<IBlog | null> {
+  async deleteBlog(id: string): Promise<IBlog | null> {
     try {
       const deletedBlog = await BlogRepository.deleteById(id);
       if (!deletedBlog) throw new Error('Blog not found');
