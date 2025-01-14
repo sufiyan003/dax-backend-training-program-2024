@@ -5,8 +5,8 @@ export interface IBlog extends Document {
   title: string;
   content: string;
   author: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 // Define the schema for the Blog model

@@ -1,13 +1,17 @@
 import { Request, Response } from 'express';
 import BlogService from './blog.service';
 import { CreateBlogBody } from './schema/create-blog.validator';
+import { UpdateBlogBody } from './schema/update-blog.valdation';
+
 
 class BlogController {
+    private readonly service: BlogService = new BlogService()
+    
     // Create a blog
-    static async createBlog(req: Request, res: Response): Promise<Response> {
+    async createBlog(req: Request, res: Response): Promise<Response> {
         try {
             const body = req.body as CreateBlogBody;
-            const blog = await BlogService.createBlog(body);
+            const blog = await this.service.createBlog(body);
             return res.status(201).json(blog);
         } catch (error: any) {
             return res.status(400).json({ error: error.message });
@@ -15,9 +19,9 @@ class BlogController {
     }
 
     // Get all blogs
-    static async getAllBlogs(_: Request, res: Response): Promise<Response> {  // Removed req as it's unused
+    async getAllBlogs(_: Request, res: Response): Promise<Response> {  // Removed req as it's unused
         try {
-            const blogs = await BlogService.getAllBlogs();
+            const blogs = await this.service.getAllBlogs();
             return res.status(200).json(blogs);
         } catch (error: any) {
             return res.status(500).json({ error: error.message });
@@ -25,9 +29,9 @@ class BlogController {
     }
 
     // Get a single blog by ID
-    static async getBlogById(req: Request, res: Response): Promise<Response> {
+    async getBlogById(req: Request, res: Response): Promise<Response> {
         try {
-            const blog = await BlogService.getBlogById(req.params.id);
+            const blog = await this.service.getBlogById(req.params.id);
             if (!blog) {
                 return res.status(404).json({ error: 'Blog not found' });
             }
@@ -38,10 +42,11 @@ class BlogController {
     }
 
     // Update a blog by ID
-    static async updateBlog(req: Request, res: Response): Promise<Response> {
+    async updateBlog(req: Request, res: Response): Promise<Response> {
         try {
             // TODO: Ensure req.body is of type Zod schema
-            const blog = await BlogService.updateBlog(req.params.id, req.body);
+            const body = req.body as UpdateBlogBody;
+            const blog = await this.service.updateBlog(req.params.id, body);
             if (!blog) {
                 return res.status(404).json({ error: 'Blog not found' });
             }
@@ -52,9 +57,9 @@ class BlogController {
     }
 
     // Delete a blog by ID
-    static async deleteBlog(req: Request, res: Response): Promise<Response> {
+    async deleteBlog(req: Request, res: Response): Promise<Response> {
         try {
-            const result = await BlogService.deleteBlog(req.params.id);
+            const result = await this.service.deleteBlog(req.params.id);
             if (!result) {
                 return res.status(404).json({ error: 'Blog not found' });
             }

@@ -2,6 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import validateBody from '../../shared/middleware/validateBody';
 import BlogController from './blog.controller';
 import { createBlogSchema } from './schema/create-blog.validator';
+import { updateBlogSchema } from './schema/update-blog.valdation';
 import { JwtService } from '../rbac/jwt.service';
 
 const router = express.Router();
@@ -59,7 +60,7 @@ router.get(
 // Update a blog by ID
 router.put(
   '/:id',
-  validateBody(createBlogSchema),
+  validateBody(updateBlogSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       await BlogController.updateBlog(req, res);
