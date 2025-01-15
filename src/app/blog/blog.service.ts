@@ -78,6 +78,18 @@ class BlogService {
       }
     }
   }
+
+  async getBlogsByCategory(category: string): Promise<IBlog[]> {
+    try {
+      return await BlogRepository.findByCategory(category);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error('An unknown error occurred');
+      }
+    }
+  }
 }
 
 export default BlogService;

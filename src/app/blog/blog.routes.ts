@@ -6,39 +6,37 @@ import { updateBlogSchema } from './schema/update-blog.valdation';
 import { JwtService } from '../rbac/jwt.service';
 
 const router = express.Router();
+const blogController = new BlogController(); // Create an instance
 
-// Create a blog
 router.post(
   '/',
-  // Authentication
-  // Authrization
   async (req: Request, _res: Response, next: NextFunction) => {
     if (!req.headers.authorization) {
-      throw new Error("Your are not auth")
+      throw new Error("You are not authorized");
     }
-    const bearerToken = req.headers.authorization.split('Bearer ')[1]
+    const bearerToken = req.headers.authorization.split('Bearer ')[1];
     console.log({ bearerToken });
 
     await JwtService.validate(bearerToken);
     next();
   },
   validateBody(createBlogSchema),
-  // BlogController.createBlog,
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await BlogController.createBlog(req, res);
+      await blogController.createBlog(req, res);
     } catch (err) {
       next(err);
     }
   }
 );
 
+
 // Get all blogs
 router.get(
   '/',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await BlogController.getAllBlogs(req, res);
+      await blogController.getAllBlogs(req, res);
     } catch (err) {
       next(err);
     }
@@ -50,7 +48,7 @@ router.get(
   '/:id',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await BlogController.getBlogById(req, res);
+      await blogController.getBlogById(req, res);
     } catch (err) {
       next(err);
     }
@@ -63,7 +61,7 @@ router.put(
   validateBody(updateBlogSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await BlogController.updateBlog(req, res);
+      await blogController.updateBlog(req, res);
     } catch (err) {
       next(err);
     }
@@ -75,11 +73,21 @@ router.delete(
   '/:id',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await BlogController.deleteBlog(req, res);
+      await blogController.deleteBlog(req, res);
     } catch (err) {
       next(err);
     }
   }
 );
+
+router.get('/category/:category', async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await blogController.getBlogsByCategory(req, res);
+    } catch (err) {
+      next(err);
+    }
+  }
+);
+
 
 export default router;

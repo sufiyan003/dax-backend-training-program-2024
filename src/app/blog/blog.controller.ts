@@ -6,7 +6,7 @@ import { UpdateBlogBody } from './schema/update-blog.valdation';
 
 class BlogController {
     private readonly service: BlogService = new BlogService()
-    
+
     // Create a blog
     async createBlog(req: Request, res: Response): Promise<Response> {
         try {
@@ -66,6 +66,16 @@ class BlogController {
             return res.status(200).json({ message: 'Blog deleted successfully' });
         } catch (error: any) {
             return res.status(404).json({ error: error.message });
+        }
+    }
+
+    async getBlogsByCategory(req: Request, res: Response): Promise<Response> {
+        try {
+            const category = req.params.category;
+            const blogs = await this.service.getBlogsByCategory(category);
+            return res.status(200).json(blogs);
+        } catch (error: any) {
+            return res.status(500).json({ error: error.message });
         }
     }
 }
