@@ -7,7 +7,7 @@ class BlogController {
     static async createBlog(req: Request, res: Response): Promise<Response> {
         try {
             const body = req.body as CreateBlogBody;
-            const blog = await BlogService.createBlog(body);
+            const blog = await new BlogService().createBlog(body);
             return res.status(201).json(blog);
         } catch (error: any) {
             return res.status(400).json({ error: error.message });

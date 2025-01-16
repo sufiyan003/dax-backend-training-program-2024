@@ -1,3 +1,4 @@
+import { blogLogger } from '../../shared/logger';
 import Blog, { IBlog } from './Blog.model';
 
 // Defining the type for blog creation data
@@ -9,12 +10,17 @@ interface BlogCreateData {
 
 // TODO: Implement the BlogRespository with Model calling
 class BlogService {
+
   // Create a blog
-  static async createBlog(data: BlogCreateData): Promise<IBlog> {
+  async createBlog(data: BlogCreateData): Promise<IBlog> {
     try {
+      blogLogger.error('Creating blog...');
+      blogLogger.info('Creating blog...');
       const blog = new Blog(data);
+      blogLogger.info('Blog Created')
       return await blog.save();
     } catch (error: unknown) {
+      blogLogger.error('Error creating blog:', error);
       if (error instanceof Error) {
         throw new Error(error.message);
       } else {

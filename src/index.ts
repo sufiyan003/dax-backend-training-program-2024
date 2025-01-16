@@ -4,6 +4,7 @@ import express, { Request, Response, NextFunction, Express } from 'express';
 import { config } from 'dotenv';
 import BlogRoutes from './app/blog/blog.routes'; // Correct import without .js extension
 import * as z from 'zod';
+import { logger } from './shared/logger';
 
 config(); // Load environment variables
 
@@ -18,14 +19,15 @@ const envValidatorSchema = z.object({
 
 async function main() {
     try {
+        // throw new Error('Error initializing application');
         // Validate environment variables
         const env = envValidatorSchema.parse(process.env);
 
         // Connect to MongoDB
         await mongoose.connect(env.MONGODB_URI);
-        console.log('Connected to MongoDB');
+        logger.info('Connected to MongoDB');
     } catch (error) {
-        console.error('Error initializing application:', error);
+        logger.error('Error initializing application:', error);
         process.exit(1); // Exit the process if the connection fails
     }
 }
@@ -41,7 +43,7 @@ app.use('/users', new AccessRoutes().router)
 
 // Global Error Handling Middleware
 app.use((err: any, _req: Request, _res: Response, _next: NextFunction) => {
-    console.error('Error occurred:', err.stack || err.message);
+    logger.error('Error occurred:', err.stack || err.message);
     _res.status(500).json({
         message: 'Something went wrong!',
         error: err.message,
@@ -52,5 +54,5 @@ app.use((err: any, _req: Request, _res: Response, _next: NextFunction) => {
 // Start the server
 const port = process.env.APP_PORT || 3000;
 app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    logger.info(`Server is running on port ${port}`);
 });

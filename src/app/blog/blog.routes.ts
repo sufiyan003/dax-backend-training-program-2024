@@ -2,7 +2,7 @@ import express, { NextFunction, Request, Response } from 'express';
 import validateBody from '../../shared/middleware/validateBody';
 import BlogController from './blog.controller';
 import { createBlogSchema } from './schema/create-blog.validator';
-import { JwtService } from '../rbac/jwt.service';
+// import { JwtService } from '../rbac/jwt.service';
 
 const router = express.Router();
 
@@ -11,19 +11,19 @@ router.post(
   '/',
   // Authentication
   // Authrization
-  async (req: Request, _res: Response, next: NextFunction) => {
-    if (!req.headers.authorization) {
-      throw new Error("Your are not auth")
-    }
-    const bearerToken = req.headers.authorization.split('Bearer ')[1]
-    console.log({ bearerToken });
+  // async (req: Request, _res: Response, next: NextFunction) => {
+  //   if (!req.headers.authorization) {
+  //     throw new Error("Your are not auth")
+  //   }
+  //   const bearerToken = req.headers.authorization.split('Bearer ')[1]
+  //   console.log({ bearerToken });
 
-    await JwtService.validate(bearerToken);
-    next();
-  },
-  validateBody(createBlogSchema),
+  //   await JwtService.validate(bearerToken);
+  //   next();
+  // },
+  // validateBody(createBlogSchema),
   // BlogController.createBlog,
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {    
     try {
       await BlogController.createBlog(req, res);
     } catch (err) {
