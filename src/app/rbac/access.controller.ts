@@ -1,7 +1,7 @@
-import bcrypt from 'bcrypt';
 import { NextFunction, Request, Response } from "express";
 import { JwtService } from "./jwt.service";
 import { UserRepository } from "./user.repository";
+import{HashService} from "./hash.service"
 // import { Types } from 'mongoose';
 // import crypto from 'crypto';
 // import asyncHandler from "../../../helpers/async";
@@ -29,6 +29,7 @@ export class AccessController {
     // private tokenService: TokenService = new TokenService()
     // readonly service: AccessService = new AccessService()
     readonly repo: UserRepository = new UserRepository();
+    readonly hashService: HashService = new HashService();
 
     constructor() {
         console.log("I am AccessController")
@@ -43,8 +44,7 @@ export class AccessController {
             console.log({ user });
 
             // 2nd: hash paasword
-            const saltRounds = 10;
-            const hashedPassword = bcrypt.hashSync(body.password, saltRounds);
+            const hashedPassword = await this.hashService.hashPassword(body.password);
             console.log({ hashedPassword });
 
             // 3nd: Create user
@@ -67,7 +67,7 @@ export class AccessController {
             const user = await new UserRepository().findByEmail(body.email);
             if (!user || !user._id) throw new Error("Account not found, Please signup first")
 
-            const isPasswordCorrect = bcrypt.compareSync(body.password, user.password); // true
+            const isPasswordCorrect = await this.hashService.comparePassword(body.password, user.password); // true
             if (!isPasswordCorrect) {
                 throw new Error("Invalid Credentianls")
             }

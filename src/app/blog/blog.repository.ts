@@ -1,24 +1,32 @@
 import Blog, { IBlog } from './Blog.model';
 
+type BlogRepoData = Pick<IBlog, 'title' | 'content' | 'author'>
+
+interface UpdatedRepoData{
+  title?: string | undefined;
+  content?: string | undefined;
+  author?: string | undefined;
+}
+
 class BlogRepository {
   // Create a new blog post
-  async create(data: Omit<IBlog, 'createdAt' | 'updatedAt'>): Promise<IBlog> {
+  static async create(data: BlogRepoData ): Promise<IBlog> {
     const blog = new Blog(data);
     return await blog.save();
   }
 
   // Find all blog posts
-  async findAll(): Promise<IBlog[]> {
+  static async findAll(): Promise<IBlog[]> {
     return await Blog.find();
   }
 
   // Find a blog post by its ID
-  async findById(id: string): Promise<IBlog | null> {
+  static async findById(id: string): Promise<IBlog | null> {
     return await Blog.findById(id);
   }
 
   // Update a blog post by its ID
-  async updateById(id: string, data: Partial<Omit<IBlog, 'createdAt' | 'updatedAt'>>): Promise<IBlog | null> {
+  static async updateById(id: string, data: UpdatedRepoData): Promise<IBlog | null> {
     return await Blog.findByIdAndUpdate(
       id,
       { ...data, updatedAt: Date.now() },
@@ -27,9 +35,9 @@ class BlogRepository {
   }
 
   // Delete a blog post by its ID
-  async deleteById(id: string): Promise<IBlog | null> {
+  static async deleteById(id: string): Promise<IBlog | null> {
     return await Blog.findByIdAndDelete(id);
   }
 }
 
-export default new BlogRepository();
+export default BlogRepository;

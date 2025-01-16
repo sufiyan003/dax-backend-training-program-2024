@@ -1,24 +1,19 @@
 import { blogLogger } from '../../shared/logger';
-import Blog, { IBlog } from './Blog.model';
+import { IBlog } from './Blog.model';
+import BlogRepository from './blog.repository';
+import { CreateBlogBody } from './schema/create-blog.validator';
+import { UpdateBlogBody } from './schema/update-blog.valdation';
+
 
 // Defining the type for blog creation data
-interface BlogCreateData {
-  title: string;
-  content: string;
-  author: string;
-}
 
 // TODO: Implement the BlogRespository with Model calling
 class BlogService {
 
   // Create a blog
-  async createBlog(data: BlogCreateData): Promise<IBlog> {
+  async createBlog(data: CreateBlogBody): Promise<IBlog> {
     try {
-      blogLogger.error('Creating blog...');
-      blogLogger.info('Creating blog...');
-      const blog = new Blog(data);
-      blogLogger.info('Blog Created')
-      return await blog.save();
+      return await BlogRepository.create(data);
     } catch (error: unknown) {
       blogLogger.error('Error creating blog:', error);
       if (error instanceof Error) {
@@ -30,9 +25,9 @@ class BlogService {
   }
 
   // Get all blogs
-  static async getAllBlogs(): Promise<IBlog[]> {
+  async getAllBlogs(): Promise<IBlog[]> {
     try {
-      return await Blog.find();
+      return await BlogRepository.findAll();
     } catch (error: unknown) {
       if (error instanceof Error) {
         throw new Error(error.message);
@@ -43,9 +38,9 @@ class BlogService {
   }
 
   // Get a single blog by ID
-  static async getBlogById(id: string): Promise<IBlog | null> {
+  async getBlogById(id: string): Promise<IBlog | null> {
     try {
-      const blog = await Blog.findById(id);
+      const blog = await BlogRepository.findById(id);
       if (!blog) throw new Error('Blog not found');
       return blog;
     } catch (error: unknown) {
@@ -58,13 +53,9 @@ class BlogService {
   }
 
   // Update a blog by ID
-  static async updateBlog(id: string, data: Partial<BlogCreateData>): Promise<IBlog | null> {
+  async updateBlog(id: string, data: UpdateBlogBody): Promise<IBlog | null> {
     try {
-      const updatedBlog = await Blog.findByIdAndUpdate(
-        id,
-        { ...data, updatedAt: Date.now() },
-        { new: true, runValidators: true }
-      );
+      const updatedBlog = await BlogRepository.updateById(id, data);
       if (!updatedBlog) throw new Error('Blog not found');
       return updatedBlog;
     } catch (error: unknown) {
@@ -77,9 +68,9 @@ class BlogService {
   }
 
   // Delete a blog by ID
-  static async deleteBlog(id: string): Promise<IBlog | null> {
+  async deleteBlog(id: string): Promise<IBlog | null> {
     try {
-      const deletedBlog = await Blog.findByIdAndDelete(id);
+      const deletedBlog = await BlogRepository.deleteById(id);
       if (!deletedBlog) throw new Error('Blog not found');
       return deletedBlog;
     } catch (error: unknown) {
