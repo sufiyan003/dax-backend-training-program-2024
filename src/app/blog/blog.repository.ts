@@ -1,6 +1,6 @@
 import Blog, { IBlog } from './Blog.model';
 
-type BlogRepoData = Pick<IBlog, 'title' | 'content' | 'author'>;
+type BlogRepoData = Pick<IBlog, 'title' | 'content' | 'author' | 'categoryId'>;
 
 interface UpdatedRepoData {
   title?: string | undefined;
@@ -39,13 +39,17 @@ class BlogRepository {
     return await Blog.findByIdAndDelete(id);
   }
 
-  // Find blogs by category
-  static async findByCategory(category: string): Promise<IBlog[]> {
-    try {
-      return await Blog.find({ category }); // Use Blog model here
-    } catch (error) {
-      throw error;
-    }
+  // Find blog posts by category with pagination
+  static async findByCategory(categoryId: string, offset: number, limit: number): Promise<IBlog[]> {
+    return await Blog.find({ categoryId })
+      .skip(offset)
+      .limit(limit)
+      .exec();
+  }
+
+  // Count blog posts by category
+  static async countByCategory(categoryId: string): Promise<number> {
+    return await Blog.countDocuments({ categoryId }).exec();
   }
 }
 
