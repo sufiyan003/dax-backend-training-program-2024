@@ -1,9 +1,6 @@
 
 
-import { createWriteStream } from 'fs';
 import pino from 'pino'
-
-const stream = createWriteStream('./logs.log', { flags: 'a' });
 
 export const logger = pino({
     level: 'info',
@@ -13,9 +10,9 @@ export const logger = pino({
             colorize: true
         }
     },
+});
 
-}, stream);
+export const blogServiceLogger = logger.child({ service: 'blog-service' });
+export const blogRepoLogger = logger.child({ service: 'blog-service', repository: "blog-repository" });
 
-export const blogLogger = logger.child({ module: 'blog-service' });
-
-export const categoryLogger = logger.child({ module: 'category-service' });
+export const categoryLogger = logger.child({ service: 'category-service' });

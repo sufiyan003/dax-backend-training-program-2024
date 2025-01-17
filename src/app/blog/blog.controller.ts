@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
+import { AppRequest } from '../../@types/express';
+import CategoryService from '../categories/categories.service';
 import BlogService from './blog.service';
 import { CreateBlogBody } from './schema/create-blog.validator';
 import { UpdateBlogBody } from './schema/update-blog.valdation';
-import CategoryService from '../categories/categories.service';
+
 
 class BlogController {
     private readonly service: BlogService = new BlogService()
@@ -10,10 +12,11 @@ class BlogController {
 
 
     // Create a blog
-    async createBlog(req: Request, res: Response): Promise<Response> {
+    async createBlog(req: AppRequest, res: Response): Promise<Response> {
         try {
+            console.log({ user: req.user, userId: req.userId });
             const body = req.body as CreateBlogBody;
-            const blog = await this.service.createBlog(body);
+            const blog = await this.service.createBlog({ ...body, author: req.user.name });
             return res.status(201).json(blog);
         } catch (error: any) {
             console.log("error=> ", error)
@@ -22,10 +25,10 @@ class BlogController {
     }
 
     // Get all blogs
-    async getAllBlogs(_: Request, res: Response): Promise<Response> {  // Removed req as it's unused
+    async getAllBlogs(_: AppRequest, res: Response): Promise<Response> {  // Removed req as it's unused
         try {
-            const blogs = await this.service.getAllBlogs();
-            return res.status(200).json(blogs);
+            // const blogs = [];// await this.service.getAllBlogs();
+            return res.status(200).json({});
         } catch (error: any) {
             return res.status(500).json({ error: error.message });
         }

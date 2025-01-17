@@ -1,3 +1,4 @@
+import { blogRepoLogger } from '../../shared/logger';
 import Blog, { IBlog } from './Blog.model';
 
 type BlogRepoData = Pick<IBlog, 'title' | 'content' | 'author' | 'categoryId'>;
@@ -11,6 +12,7 @@ interface UpdatedRepoData {
 class BlogRepository {
   // Create a new blog post
   static async create(data: BlogRepoData): Promise<IBlog> {
+    blogRepoLogger.info('Creating a new blog post:', data);
     const blog = new Blog(data);
     return await blog.save();
   }

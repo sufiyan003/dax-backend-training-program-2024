@@ -9,7 +9,46 @@
 // import { authBearerSchema } from '../utils/joi.schema';
 // import asyncHandler from '../helpers/async';
 
+import { NextFunction, Request, Response } from "express";
+import { JwtService } from "../../app/rbac/jwt.service";
+import { UserRepository } from "../../app/rbac/user.repository";
+
 // const router = Router();
+
+export const authentication = async (req: Request, _res: Response, next: NextFunction) => {
+    try {
+      if (!req.headers.authorization) {
+        throw new Error("Your are not auth")
+      }
+
+      const bearerToken = req.headers.authorization.split('Bearer ')[1]
+      const jwtPayload = await JwtService.validate(bearerToken);
+      console.log({ jwtPayload });
+      
+      if (!jwtPayload) {
+        throw new Error("Your are not auth")
+      }
+      
+      const user = await new UserRepository().findById(jwtPayload.prm);
+
+      if (!user) {
+        throw new Error("Your are not auth, user not found!")
+      }
+
+      if (user.status === "block") {
+        throw new Error("Your are not auth, you are blocked")
+      }
+
+    //   @ts-ignore
+      req.userId = jwtPayload.prm;
+    //   @ts-ignore
+      req.user = user;
+      
+      next();
+    } catch (error) {
+      next(error)
+    }
+}
 
 // export default router.use(
 //   validator(authBearerSchema, ValidationSource.HEADER),

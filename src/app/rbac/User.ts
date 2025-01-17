@@ -6,6 +6,7 @@ export interface IUser {
     name: string;
     email: string;
     password: string;
+    status: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -14,6 +15,7 @@ export interface IUserDocument extends Document {
     name: string;
     email: string;
     password: string;
+    status: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -23,6 +25,7 @@ const userSchema: Schema<IUserDocument> = new mongoose.Schema<IUserDocument>({
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    status: { type: String, required: false, default: 'active' },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

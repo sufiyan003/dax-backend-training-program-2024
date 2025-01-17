@@ -1,3 +1,4 @@
+// TODO: Implement OOPs based routing (like assets.routes.ts)
 import express, { NextFunction, Request, Response } from 'express';
 import CategoryController from './categories.controller';
 

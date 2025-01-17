@@ -1,4 +1,6 @@
+// TODO: Implement OOP based routing (like assets.routes.ts)
 import express, { NextFunction, Request, Response } from 'express';
+import { authentication } from '../../shared/middleware/authentication';
 import validateBody from '../../shared/middleware/validateBody';
 import BlogController from './blog.controller';
 import { updateBlogSchema } from './schema/update-blog.valdation';
@@ -14,23 +16,13 @@ router.post(
   '/',
   // Authentication
   // Authrization
-  // async (req: Request, _res: Response, next: NextFunction) => {
-  //   if (!req.headers.authorization) {
-  //     throw new Error("Your are not auth")
-  //   }
-  //   const bearerToken = req.headers.authorization.split('Bearer ')[1]
-  //   console.log({ bearerToken });
-
-  //   await JwtService.validate(bearerToken);
-  //   next();
-  // },
+  authentication,
   // validateBody(createBlogSchema),
 
   // blogController.createBlog,
-  async (req: Request, res: Response, next: NextFunction) => {
 
   // BlogController.createBlog,
-  async (req: Request, res: Response, next: NextFunction) => {    
+  async (req: Request, res: Response, next: NextFunction) => {
 
     try {
       await blogController.createBlog(req, res);
