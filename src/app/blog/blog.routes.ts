@@ -3,7 +3,11 @@ import validateBody from '../../shared/middleware/validateBody';
 import BlogController from './blog.controller';
 import { updateBlogSchema } from './schema/update-blog.valdation';
 
+// import { createBlogSchema } from './schema/create-blog.validator';
+
+
 const router = express.Router();
+const blogController = new BlogController(); // Create an instance
 
 // Create a blog
 router.post(
@@ -21,10 +25,15 @@ router.post(
   //   next();
   // },
   // validateBody(createBlogSchema),
+
+  // blogController.createBlog,
+  async (req: Request, res: Response, next: NextFunction) => {
+
   // BlogController.createBlog,
   async (req: Request, res: Response, next: NextFunction) => {    
+
     try {
-      await BlogController.createBlog(req, res);
+      await blogController.createBlog(req, res);
     } catch (err) {
       next(err);
     }
@@ -36,7 +45,7 @@ router.get(
   '/',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await BlogController.getAllBlogs(req, res);
+      await blogController.getAllBlogs(req, res);
     } catch (err) {
       next(err);
     }
@@ -48,7 +57,7 @@ router.get(
   '/:id',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await BlogController.getBlogById(req, res);
+      await blogController.getBlogById(req, res);
     } catch (err) {
       next(err);
     }
@@ -61,7 +70,7 @@ router.put(
   validateBody(updateBlogSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await BlogController.updateBlog(req, res);
+      await blogController.updateBlog(req, res);
     } catch (err) {
       next(err);
     }
@@ -73,9 +82,22 @@ router.delete(
   '/:id',
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await BlogController.deleteBlog(req, res);
+      await blogController.deleteBlog(req, res);
     } catch (err) {
       next(err);
+    }
+  }
+);
+
+// Get blogs by category with pagination
+router.get(
+  '/category/:categoryId', // :categoryId is part of the route parameters
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      // Pass query parameters (page and limit) to the controller method
+      await blogController.getBlogsByCategory(req, res);
+    } catch (err) {
+      next(err); // Pass error to the next middleware (error handler)
     }
   }
 );

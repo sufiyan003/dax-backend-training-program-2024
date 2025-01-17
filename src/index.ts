@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import express, { Request, Response, NextFunction, Express } from 'express';
 import { config } from 'dotenv';
 import BlogRoutes from './app/blog/blog.routes'; // Correct import without .js extension
+import CategoryRoutes from "./app/categories/categories.routes"
 import * as z from 'zod';
 import { logger } from './shared/logger';
 
@@ -39,6 +40,7 @@ app.use(express.json());
 
 // Modular Routes
 app.use('/blogs', BlogRoutes);
+app.use('/category', CategoryRoutes);
 app.use('/users', new AccessRoutes().router)
 
 // Global Error Handling Middleware

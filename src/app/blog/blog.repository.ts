@@ -1,8 +1,8 @@
 import Blog, { IBlog } from './Blog.model';
 
-type BlogRepoData = Pick<IBlog, 'title' | 'content' | 'author'>
+type BlogRepoData = Pick<IBlog, 'title' | 'content' | 'author' | 'categoryId'>;
 
-interface UpdatedRepoData{
+interface UpdatedRepoData {
   title?: string | undefined;
   content?: string | undefined;
   author?: string | undefined;
@@ -10,7 +10,7 @@ interface UpdatedRepoData{
 
 class BlogRepository {
   // Create a new blog post
-  static async create(data: BlogRepoData ): Promise<IBlog> {
+  static async create(data: BlogRepoData): Promise<IBlog> {
     const blog = new Blog(data);
     return await blog.save();
   }
@@ -37,6 +37,19 @@ class BlogRepository {
   // Delete a blog post by its ID
   static async deleteById(id: string): Promise<IBlog | null> {
     return await Blog.findByIdAndDelete(id);
+  }
+
+  // Find blog posts by category with pagination
+  static async findByCategory(categoryId: string, offset: number, limit: number): Promise<IBlog[]> {
+    return await Blog.find({ categoryId })
+      .skip(offset)
+      .limit(limit)
+      .exec();
+  }
+
+  // Count blog posts by category
+  static async countByCategory(categoryId: string): Promise<number> {
+    return await Blog.countDocuments({ categoryId }).exec();
   }
 }
 

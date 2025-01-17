@@ -17,3 +17,5 @@ export const logger = pino({
 }, stream);
 
 export const blogLogger = logger.child({ module: 'blog-service' });
+
+export const categoryLogger = logger.child({ module: 'category-service' });

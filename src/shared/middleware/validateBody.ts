@@ -7,6 +7,7 @@ const validateBody = (schema: any) => {
       schema.validateSync(req.body); // Example, adjust as per your validation logic
       next(); // If validation passes, proceed to next middleware
     } catch (err: unknown) {
+      console.log('error from middleware=> ', err)
       // Type assertion to 'any' or more specific error type
       res.status(400).json({ error: (err as any).errors });
     }
