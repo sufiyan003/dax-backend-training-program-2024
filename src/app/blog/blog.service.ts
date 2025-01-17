@@ -1,5 +1,7 @@
 import { blogLogger } from '../../shared/logger';
+
 import CategoryRepository from '../categories/categories.repository';
+
 import { IBlog } from './Blog.model';
 import BlogRepository from './blog.repository';
 import { CreateBlogBody } from './schema/create-blog.validator';
@@ -26,6 +28,7 @@ class BlogService {
         }
     }
 
+
     // Get all blogs
     async getAllBlogs(): Promise<IBlog[]> {
         try {
@@ -37,6 +40,22 @@ class BlogService {
                 throw new Error('An unknown error occurred');
             }
         }
+=======
+// TODO: Implement the BlogRespository with Model calling
+class BlogService {
+
+  // Create a blog
+  async createBlog(data: CreateBlogBody): Promise<IBlog> {
+    try {
+      return await BlogRepository.create(data);
+    } catch (error: unknown) {
+      blogLogger.error('Error creating blog:', error);
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      } else {
+        throw new Error('An unknown error occurred');
+      }
+
     }
 
     // Get a single blog by ID

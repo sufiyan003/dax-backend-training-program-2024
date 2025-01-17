@@ -2,7 +2,9 @@ import express, { NextFunction, Request, Response } from 'express';
 import validateBody from '../../shared/middleware/validateBody';
 import BlogController from './blog.controller';
 import { updateBlogSchema } from './schema/update-blog.valdation';
+
 // import { createBlogSchema } from './schema/create-blog.validator';
+
 
 const router = express.Router();
 const blogController = new BlogController(); // Create an instance
@@ -23,8 +25,13 @@ router.post(
   //   next();
   // },
   // validateBody(createBlogSchema),
+
   // blogController.createBlog,
   async (req: Request, res: Response, next: NextFunction) => {
+
+  // BlogController.createBlog,
+  async (req: Request, res: Response, next: NextFunction) => {    
+
     try {
       await blogController.createBlog(req, res);
     } catch (err) {

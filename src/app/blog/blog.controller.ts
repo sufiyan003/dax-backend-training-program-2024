@@ -8,6 +8,7 @@ class BlogController {
     private readonly service: BlogService = new BlogService()
     private readonly catService: CategoryService = new CategoryService()
 
+
     // Create a blog
     async createBlog(req: Request, res: Response): Promise<Response> {
         try {
