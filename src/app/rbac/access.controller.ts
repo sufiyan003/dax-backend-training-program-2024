@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { JwtService } from "./jwt.service";
 import { UserRepository } from "./user.repository";
-import{HashService} from "./hash.service"
+import { HashService } from "./hash.service"
 // import { Types } from 'mongoose';
 // import crypto from 'crypto';
 // import asyncHandler from "../../../helpers/async";
@@ -51,7 +51,9 @@ export class AccessController {
             const createdUser = await new UserRepository().create({
                 email: body.email,
                 name: "Abcd",
-                password: hashedPassword
+                password: hashedPassword,
+                status: 'active', // Explicitly add status
+                role: 'author'
             });
 
             res.send({ msg: "Signup success", user, createdUser })
