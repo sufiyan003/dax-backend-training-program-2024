@@ -8,6 +8,7 @@ export interface IBlog extends Document {
   categoryId: string;
   createdAt?: Date;
   updatedAt?: Date;
+  deletedAt?: Date | null;
 }
 
 // Define the schema for the Blog model
@@ -18,6 +19,7 @@ const blogSchema: Schema<IBlog> = new mongoose.Schema<IBlog>({
   categoryId: { type: String, ref: 'Category', required: true },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  deletedAt: { type: Date, default: null },
 });
 
 // Middleware to update `updatedAt` before saving the document
