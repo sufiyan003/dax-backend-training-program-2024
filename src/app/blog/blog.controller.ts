@@ -25,7 +25,9 @@ class BlogController {
         }
     }
 
-    // Get all blogs
+    // TODO: get this filter from query params (?category=abc,xyz)
+    // TODO: Get all blog with filter. where category is "abc" or "xyz"
+    // Get all blogsx
     async getAllBlogs(_: AppRequest, res: Response): Promise<Response> {  // Removed req as it's unused
         try {
             // const blogs = [];// await this.service.getAllBlogs();

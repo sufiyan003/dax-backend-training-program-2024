@@ -1,6 +1,3 @@
-// TODO: Implement hash service
-
-// src/services/bcryptService.ts
 
 import bcrypt from 'bcrypt';
 

@@ -6,7 +6,6 @@ import BlogRepository from './blog.repository';
 import { CreateBlogBody } from './schema/create-blog.validator';
 import { UpdateBlogBody } from './schema/update-blog.valdation';
 
-// TODO: Implement the BlogRespository with Model calling
 class BlogService {
 
   // Create a blog

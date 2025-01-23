@@ -43,7 +43,6 @@ class CategoryController {
     // Update a category by ID
     async updateCategory(req: Request, res: Response): Promise<Response> {
         try {
-            // TODO: Ensure req.body is of type Zod schema
             const body = req.body as UpdateCategoryBody;
             const category = await this.service.updateCategoryById(req.params.id, body);
             if (!category) {

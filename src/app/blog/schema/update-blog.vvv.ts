@@ -1,4 +1,3 @@
-// TODO: Update blog schema (all fields are optional)
 
 import * as z from 'zod';
 

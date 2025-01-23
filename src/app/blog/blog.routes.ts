@@ -3,7 +3,13 @@ import { authentication } from '../../shared/middleware/authentication';
 import validateBody from '../../shared/middleware/validateBody';
 import BlogController from './blog.controller';
 import { updateBlogSchema } from './schema/update-blog.valdation';
-import { authorization } from '../../shared/middleware/authorization';
+// import { authorization } from '../../shared/middleware/authorization';
+
+// TODO: your-name/feature/soft-delete-blog
+// TODO: Soft delete API
+// TODO: Hard delete API
+// TODO: Restore delete data API
+// TODO: Get all trash data API
 
 export class BlogRoutes {
   readonly router: Router = Router();
@@ -22,7 +28,7 @@ export class BlogRoutes {
       // Authentication
       // Authrization,
       authentication,
-      authorization(['author', "admin"]),
+      // authorization(['author', "admin"]),
       // validateBody(createBlogSchema),
 
       // blogController.createBlog,
