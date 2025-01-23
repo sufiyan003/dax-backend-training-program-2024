@@ -50,6 +50,7 @@ export const authentication = async (req: Request, _res: Response, next: NextFun
     }
 }
 
+
 // export default router.use(
 //   validator(authBearerSchema, ValidationSource.HEADER),
 //   asyncHandler(async (req: any, res, next) => {

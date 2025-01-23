@@ -15,6 +15,7 @@ class BlogController {
     async createBlog(req: AppRequest, res: Response): Promise<Response> {
         try {
             console.log({ user: req.user, userId: req.userId });
+        //   @ts-ignore
             const body = req.body as CreateBlogBody;
             const blog = await this.service.createBlog({ ...body, author: req.user.name });
             return res.status(201).json(blog);

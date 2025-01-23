@@ -2,10 +2,10 @@ import { AccessRoutes } from './app/rbac/access.routes';
 import mongoose from 'mongoose';
 import express, { Request, Response, NextFunction, Express } from 'express';
 import { config } from 'dotenv';
-import BlogRoutes from './app/blog/blog.routes'; // Correct import without .js extension
 import CategoryRoutes from "./app/categories/categories.routes"
 import * as z from 'zod';
 import { logger } from './shared/logger';
+import { BlogRoutes } from './app/blog/blog.routes';
 
 config(); // Load environment variables
 
@@ -39,7 +39,7 @@ main();
 app.use(express.json());
 
 // Modular Routes
-app.use('/blogs', BlogRoutes);
+app.use('/blogs', new BlogRoutes().router);
 app.use('/category', CategoryRoutes);
 app.use('/users', new AccessRoutes().router)
 
@@ -58,3 +58,4 @@ const port = process.env.APP_PORT || 3000;
 app.listen(port, () => {
     logger.info(`Server is running on port ${port}`);
 });
+``
