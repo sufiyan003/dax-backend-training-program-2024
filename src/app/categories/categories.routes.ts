@@ -1,58 +1,42 @@
 // TODO: Implement OOPs based routing (like assets.routes.ts)
-import express, { NextFunction, Request, Response } from 'express';
+import express, { Router } from 'express';
 import CategoryController from './categories.controller';
 
-const router = express.Router();
-const categoryController = new CategoryController()
+// c
 
-// Create Category
-router.post("/", async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        await categoryController.createCategory(req, res)
+class CategoryRoutes {
+    public router: Router;
+    private categoryController: CategoryController;
+  
+    constructor() {
+      this.router = express.Router();
+      this.categoryController = new CategoryController();
+      this.initializeRoutes();
     }
-    catch (e) {
-        next(e)
+  
+    private initializeRoutes(): void {
+      // Create Category
+      this.router.post("/", this.wrapAsync(this.categoryController.createCategory.bind(this.categoryController)));
+  
+      // Get All Categories
+      this.router.get("/", this.wrapAsync(this.categoryController.getAllCategories.bind(this.categoryController)));
+  
+      // Get Category by ID
+      this.router.get("/:id", this.wrapAsync(this.categoryController.getCategoryById.bind(this.categoryController)));
+  
+      // Update Category by ID
+      this.router.put("/:id", this.wrapAsync(this.categoryController.updateCategory.bind(this.categoryController)));
+  
+      // Delete Category by ID
+      this.router.delete("/:id", this.wrapAsync(this.categoryController.deleteCategory.bind(this.categoryController)));
     }
-})
-
-// Get All Categories
-router.get("/", async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        await categoryController.getAllCategories(req, res)
+  
+    // Helper to handle async errors
+    private wrapAsync(fn: (req: express.Request, res: express.Response, next: express.NextFunction) => Promise<any>) {
+      return (req: express.Request, res: express.Response, next: express.NextFunction) => {
+        fn(req, res, next).catch(next);
+      };
     }
-    catch (e) {
-        next(e)
-    }
-})
-
-// Get Category by ID
-router.get("/:id", async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        await categoryController.getCategoryById(req, res);
-    }
-    catch (e) {
-        next(e)
-    }
-})
-
-// Update Category by ID
-router.put("/:id", async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        await categoryController.updateCategory(req, res)
-    }
-    catch (e) {
-        next(e)
-    }
-})
-
-// Delete Category by ID
-router.delete("/:id", async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        await categoryController.deleteCategory(req, res)
-    }
-    catch (e) {
-        next(e)
-    }
-})
-
-export default router;
+  }
+  
+  export default new CategoryRoutes().router;
