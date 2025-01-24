@@ -1,19 +1,12 @@
-import { Module, Provider, ValidationPipe } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { MoviesModule } from './movies/movies.module';
-import { APP_PIPE } from '@nestjs/core';
-
-const providers: Provider[] = [
-  {
-    provide: APP_PIPE,
-    useClass: ValidationPipe,
-  },
-];
+import { AppRepository } from './app.repository';
+import { CategoriesModule } from './categories/categories.module';
 
 @Module({
-  providers: [...providers, AppService],
-  imports: [MoviesModule],
+  imports: [CategoriesModule],
   controllers: [AppController],
+  providers: [AppService, AppRepository],
 })
 export class AppModule {}

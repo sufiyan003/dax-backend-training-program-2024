@@ -1,12 +1,27 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Delete, Get, Patch, Post } from '@nestjs/common';
 import { AppService } from './app.service';
 
-@Controller()
+@Controller('/application')
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  @Get()
-  getHello(): string {
+  @Get('/')
+  get(): string {
+    return this.appService.getHello();
+  }
+
+  @Post('/')
+  add(): string {
+    return this.appService.getHello();
+  }
+
+  @Patch('/')
+  update(): string {
+    return this.appService.getHello();
+  }
+
+  @Delete('/')
+  delete(): string {
     return this.appService.getHello();
   }
 }
