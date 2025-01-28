@@ -1,4 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn, Index } from 'typeorm';
+import { Exclude } from 'class-transformer';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  Index,
+  CreateDateColumn,
+  UpdateDateColumn,
+  DeleteDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class Category {
@@ -11,4 +20,16 @@ export class Category {
 
   @Column()
   title: string;
+
+  @CreateDateColumn()
+  @Exclude()
+  public createdAt?: Date;
+
+  @UpdateDateColumn()
+  @Exclude()
+  public updatedAt?: Date;
+
+  @DeleteDateColumn()
+  @Exclude()
+  public deletedAt?: Date;
 }

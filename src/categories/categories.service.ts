@@ -1,16 +1,16 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './entities/category.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
-  ) {}
+  ) { }
 
   create(createCategoryDto: CreateCategoryDto) {
     return this.categoryRepository.save({
@@ -20,18 +20,33 @@ export class CategoriesService {
   }
 
   findAll() {
-    return this.categoryRepository.find();
+    return this.categoryRepository.find({});
+  }
+
+  findTrash() {
+    return this.categoryRepository.find({ withDeleted: true });
   }
 
   findOne(id: number) {
-    return `This action returns a #${id} category`;
+    return this.categoryRepository.findOne({ where: { id } });
   }
 
   update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return `This action updates a #${id} category`;
+    return this.categoryRepository.update(
+      { id },
+      { title: updateCategoryDto.title, slug: updateCategoryDto.title },
+    );
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  delete(id: number, type: 'soft' | 'hard') {
+    if (type === 'hard') {
+      return this.categoryRepository.delete({ id });
+    } else {
+      return this.categoryRepository.softDelete({ id });
+    }
+  }
+
+  restore(id: number) {
+    return this.categoryRepository.restore({ id });
   }
 }

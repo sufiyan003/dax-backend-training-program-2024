@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -26,9 +27,15 @@ export class CategoriesController {
     return this.categoriesService.findAll();
   }
 
+  // TODO: find the reson why this is not working after swap API.
   @Get(':slug')
   findOne(@Param('slug') slug: string) {
     return this.categoriesService.findOne(+slug);
+  }
+
+  @Get('/trash')
+  findTrash() {
+    return this.categoriesService.findTrash();
   }
 
   @Patch(':slug')
@@ -40,7 +47,12 @@ export class CategoriesController {
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.categoriesService.remove(+id);
+  delete(@Param('id') id: string, @Query('type') type: 'soft' | 'hard') {
+    return this.categoriesService.delete(+id, type);
+  }
+
+  @Patch(':id/restore')
+  restore(@Param('id') id: string) {
+    return this.categoriesService.restore(+id);
   }
 }
