@@ -1,12 +1,12 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  Query,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query
 } from '@nestjs/common';
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -18,7 +18,6 @@ export class CategoriesController {
 
   @Post('/')
   create(@Body() body: CreateCategoryDto) {
-    console.log({ body });
     return this.categoriesService.create(body);
   }
 
