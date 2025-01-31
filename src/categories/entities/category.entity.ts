@@ -7,6 +7,8 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   DeleteDateColumn,
+  ManyToOne,
+  OneToMany,
 } from 'typeorm';
 
 @Entity()
@@ -20,6 +22,12 @@ export class Category {
 
   @Column()
   title: string;
+
+  @ManyToOne(() => Category, (category) => category.childCategories)
+  parentCategory: Category;
+
+  @OneToMany(() => Category, (category) => category.parentCategory)
+  childCategories: Category[];
 
   @CreateDateColumn()
   @Exclude()

@@ -28,4 +28,4 @@ import { ResponseInterceptor } from './shared/interceptors/success-response.inte
   imports: [PostgresDatabaseModule, CategoriesModule],
   controllers: [AppController],
 })
-export class AppModule { }
+export class AppModule {}
