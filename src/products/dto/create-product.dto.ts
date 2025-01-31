@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsBoolean } from 'class-validator';
+import { IsNotEmpty, IsNumber } from 'class-validator';
 
 export class CreateProductDto {
   @IsNotEmpty()
@@ -7,6 +7,12 @@ export class CreateProductDto {
   @IsNumber()
   price: number;
 
-  @IsBoolean()
-  isAvailable: boolean;
+  @IsNotEmpty()
+  description: string;
+
+  @IsNotEmpty()
+  imageUrl: string;
+
+  @IsNotEmpty()
+  subCategoryId: number;
 }

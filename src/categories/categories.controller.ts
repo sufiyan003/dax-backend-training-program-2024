@@ -1,58 +1,55 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-} from '@nestjs/common';
-import { CategoriesService } from './categories.service';
+import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CategoriesService } from './categories.service';
 
+@ApiTags('categories')
 @Controller('categories')
 export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
-  @Post('/')
-  create(@Body() body: CreateCategoryDto) {
-    console.log({ body });
-    return this.categoriesService.create(body);
+  @Post()
+  @ApiOperation({ summary: 'Create a new category' })
+  @ApiResponse({ status: 201, description: 'Category successfully created.' })
+  create(@Body() createCategoryDto: CreateCategoryDto) {
+    return this.categoriesService.create(createCategoryDto);
   }
 
   @Get()
+  @ApiOperation({ summary: 'Get all categories' })
+  @ApiResponse({ status: 200, description: 'List of categories retrieved.' })
   findAll() {
     return this.categoriesService.findAll();
   }
 
-  // TODO: find the reson why this is not working after swap API.
-  @Get(':slug')
-  findOne(@Param('slug') slug: string) {
-    return this.categoriesService.findOne(+slug);
+  @Get(':id')
+  @ApiOperation({ summary: 'Get a category by ID' })
+  @ApiResponse({ status: 200, description: 'Category retrieved.' })
+  @ApiParam({ name: 'id', description: 'Category ID' })
+  findOne(@Param('id') id: string) {
+    
+    const categoryId = Number(id);
+    return this.categoriesService.findOne(categoryId);
   }
 
-  @Get('/trash')
-  findTrash() {
-    return this.categoriesService.findTrash();
-  }
-
-  @Patch(':slug')
-  update(
-    @Param('slug') slug: string,
-    @Body() updateCategoryDto: UpdateCategoryDto,
-  ) {
-    return this.categoriesService.update(+slug, updateCategoryDto);
+  @Put(':id')
+  @ApiOperation({ summary: 'Update a category' })
+  @ApiResponse({ status: 200, description: 'Category successfully updated.' })
+  @ApiParam({ name: 'id', description: 'Category ID' })
+  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
+    
+    const categoryId = Number(id);
+    return this.categoriesService.update(categoryId, updateCategoryDto);
   }
 
   @Delete(':id')
-  delete(@Param('id') id: string, @Query('type') type: 'soft' | 'hard') {
-    return this.categoriesService.delete(+id, type);
-  }
-
-  @Patch(':id/restore')
-  restore(@Param('id') id: string) {
-    return this.categoriesService.restore(+id);
+  @ApiOperation({ summary: 'Delete a category' })
+  @ApiResponse({ status: 200, description: 'Category successfully deleted.' })
+  @ApiParam({ name: 'id', description: 'Category ID' })
+  remove(@Param('id') id: string) {
+    
+    const categoryId = Number(id);
+    return this.categoriesService.remove(categoryId);
   }
 }

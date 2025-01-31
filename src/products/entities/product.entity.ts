@@ -1,6 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { SubCategory } from '../../sub-categories/entities/sub-category.entity';
 
-@Entity('products')
+@Entity()
 export class Product {
   @PrimaryGeneratedColumn()
   id: number;
@@ -11,6 +12,12 @@ export class Product {
   @Column('decimal')
   price: number;
 
-  @Column({ default: true })
-  isAvailable: boolean;
+  @Column()
+  description: string;
+
+  @Column()
+  imageUrl: string;
+
+  @ManyToOne(() => SubCategory, subCategory => subCategory.id, { onDelete: 'CASCADE' })
+  subCategory: SubCategory;
 }

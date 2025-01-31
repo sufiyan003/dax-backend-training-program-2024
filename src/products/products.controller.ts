@@ -1,38 +1,52 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body } from '@nestjs/common';
-import { ProductsService } from './products.service';
+import { Controller, Get, Post, Body, Param, Put, Delete } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam } from '@nestjs/swagger';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Product } from './product.entity';
+import { ProductsService } from './products.service';
 
+@ApiTags('products')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
+  @Post()
+  @ApiOperation({ summary: 'Create a new product' })
+  @ApiResponse({ status: 201, description: 'Product successfully created.' })
+  create(@Body() createProductDto: CreateProductDto) {
+    return this.productsService.create(createProductDto);
+  }
+
   @Get()
-  async findAll(): Promise<Product[]> {
+  @ApiOperation({ summary: 'Get all products' })
+  @ApiResponse({ status: 200, description: 'List of products retrieved.' })
+  findAll() {
     return this.productsService.findAll();
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: number): Promise<Product> {
-    return this.productsService.findOne(id);
+  @ApiOperation({ summary: 'Get a product by ID' })
+  @ApiResponse({ status: 200, description: 'Product retrieved.' })
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  findOne(@Param('id') id: string) {
+    const productId = Number(id);
+    return this.productsService.findOne(productId);
   }
 
-  @Post()
-  async create(@Body() createProductDto: CreateProductDto): Promise<Product> {
-    return this.productsService.create(createProductDto);
-  }
-
-  @Patch(':id')
-  async update(
-    @Param('id') id: number,
-    @Body() updateProductDto: UpdateProductDto,
-  ): Promise<Product> {
-    return this.productsService.update(id, updateProductDto);
+  @Put(':id')
+  @ApiOperation({ summary: 'Update a product' })
+  @ApiResponse({ status: 200, description: 'Product successfully updated.' })
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
+    const productId = Number(id);
+    return this.productsService.update(productId, updateProductDto);
   }
 
   @Delete(':id')
-  async delete(@Param('id') id: number): Promise<void> {
-    return this.productsService.delete(id);
+  @ApiOperation({ summary: 'Delete a product' })
+  @ApiResponse({ status: 200, description: 'Product successfully deleted.' })
+  @ApiParam({ name: 'id', description: 'Product ID' })
+  remove(@Param('id') id: string) {
+    const productId = Number(id);
+    return this.productsService.remove(productId);
   }
 }

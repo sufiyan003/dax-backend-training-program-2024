@@ -1,43 +1,41 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ProductRepository } from './product.repository';
+import { Product } from './entities/product.entity';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { Product } from './product.entity';
+import { SubCategory } from '../sub-categories/entities/sub-category.entity';
 
 @Injectable()
 export class ProductsService {
   constructor(
-    @InjectRepository(ProductRepository)
-    private productRepository: ProductRepository,
+    @InjectRepository(Product)
+    private productRepository: Repository<Product>,
+    @InjectRepository(SubCategory)
+    private subCategoryRepository: Repository<SubCategory>,
   ) {}
 
-  async findAll(): Promise<Product[]> {
-    return this.productRepository.find();
-  }
+  async create(createProductDto: CreateProductDto) {
+    const subCategory = await this.subCategoryRepository.findOne({ where: { id: createProductDto.subCategoryId } });
+    if (!subCategory) throw new Error('SubCategory not found');
 
-  async findOne(id: number): Promise<Product> {
-    const product = await this.productRepository.findOne(id);
-    if (!product) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
-    }
-    return product;
-  }
-
-  async create(createProductDto: CreateProductDto): Promise<Product> {
-    const product = this.productRepository.create(createProductDto);
+    const product = this.productRepository.create({ ...createProductDto, subCategory });
     return this.productRepository.save(product);
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto): Promise<Product> {
-    await this.productRepository.update(id, updateProductDto);
-    return this.findOne(id);
+  findAll() {
+    return this.productRepository.find({ relations: ['subCategory'] });
   }
 
-  async delete(id: number): Promise<void> {
-    const result = await this.productRepository.delete(id);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Product with ID ${id} not found`);
-    }
+  findOne(id: number) {
+    return this.productRepository.findOne({ where: { id }, relations: ['subCategory'] });
+  }
+
+  update(id: number, updateProductDto: UpdateProductDto) {
+    return this.productRepository.update(id, updateProductDto);
+  }
+
+  remove(id: number) {
+    return this.productRepository.delete(id);
   }
 }

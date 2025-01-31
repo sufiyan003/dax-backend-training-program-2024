@@ -1,35 +1,14 @@
-import { Exclude } from 'class-transformer';
-import {
-  Entity,
-  Column,
-  PrimaryGeneratedColumn,
-  Index,
-  CreateDateColumn,
-  UpdateDateColumn,
-  DeleteDateColumn,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { SubCategory } from '../../sub-categories/entities/sub-category.entity';
 
 @Entity()
 export class Category {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Index({ unique: true })
-  @Column({ unique: true, nullable: false })
-  slug: string;
-
   @Column()
-  title: string;
+  name: string;
 
-  @CreateDateColumn()
-  @Exclude()
-  public createdAt?: Date;
-
-  @UpdateDateColumn()
-  @Exclude()
-  public updatedAt?: Date;
-
-  @DeleteDateColumn()
-  @Exclude()
-  public deletedAt?: Date;
+  @OneToMany(() => SubCategory, subCategory => subCategory.category)
+  subCategories: SubCategory[];
 }
