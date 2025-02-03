@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Category } from 'src/categories/entities/category.entity'; // Assuming the Category entity exists
-import { Product } from 'src/products/entities/product.entity'; // Updated import path for Product entity
-import { ProductsModule } from 'src/products/products.module'; // Ensure this path matches your structure
+import { Category } from 'src/categories/entities/category.entity';
+import { Product } from 'src/products/product.entity';
+import { Profile } from 'src/users/profile.entity';
+import { User } from 'src/users/user.entity';
 
 @Module({
   imports: [
@@ -13,10 +14,9 @@ import { ProductsModule } from 'src/products/products.module'; // Ensure this pa
       username: 'postgres',
       password: '1234',
       database: 'dax-training-program-2025',
-      entities: [Category, Product], // Make sure Product is included
-      synchronize: true, // Use only in development
+      entities: [Category, Product, User, Profile],
+      synchronize: true,
     }),
-    ProductsModule, // Ensure ProductModule is correctly imported
   ],
 })
 export class PostgresDatabaseModule {}
