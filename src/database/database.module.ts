@@ -1,21 +1,18 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConfigModule } from '@nestjs/config';
 import { Category } from '../categories/entities/category.entity';
-import { SubCategory } from '../sub-categories/entities/sub-category.entity';
 import { Product } from '../products/entities/product.entity';
 
 @Module({
   imports: [
-    ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST || 'localhost',
-      port: Number(process.env.DB_PORT) || 5432,
-      username: process.env.DB_USER || 'postgres',
-      password: process.env.DB_PASS || '1234',
-      database: process.env.DB_NAME || 'dax_bazaar_db',
-      entities: [Category, SubCategory, Product],
+      host: 'localhost',
+      port: 5432,
+      username: 'postgres',  
+      password: '1234',      
+      database: 'dax_bazaar_db',
+      entities: [Category, Product],
       synchronize: true, 
     }),
   ],

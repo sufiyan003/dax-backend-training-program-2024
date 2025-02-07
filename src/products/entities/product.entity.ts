@@ -1,23 +1,36 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { SubCategory } from '../../sub-categories/entities/sub-category.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToMany, JoinTable, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Category } from '../../categories/entities/category.entity';
 
-@Entity()
+@Entity('products')
 export class Product {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
-  @Column()
+  @Column({ type: 'varchar', length: 255, unique: true })
   name: string;
 
-  @Column('decimal')
-  price: number;
-
-  @Column()
+  @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column()
+  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  price: number;
+
+  @Column({ type: 'text', nullable: true })
   imageUrl: string;
 
-  @ManyToOne(() => SubCategory, subCategory => subCategory.id, { onDelete: 'CASCADE' })
-  subCategory: SubCategory;
+  @Column({ type: 'varchar', length: 50, unique: true }) 
+  sku: string;
+
+  @ManyToMany(() => Category)
+  @JoinTable({ name: 'product_categories' })
+  categories: Category[];
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }
