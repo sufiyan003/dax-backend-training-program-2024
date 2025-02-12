@@ -1,10 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
+import { Entity, Column, ManyToOne, OneToMany, DeleteDateColumn } from 'typeorm';
+import { BaseEntity } from '../../entities/base.entity';
 
-@Entity()
-export class Category {
-  @PrimaryGeneratedColumn()
-  id: string;
-
+@Entity('categories')
+export class Category extends BaseEntity {
   @Column()
   name: string;
 
@@ -14,18 +12,12 @@ export class Category {
   @Column({ nullable: true })
   imageUrl: string;
 
-  @ManyToOne(() => Category, (category) => category.subCategories, { nullable: true })
+  @Column({ nullable: true })
+  parentCategoryId: string; // Added parentCategoryId column
+
+  @ManyToOne(() => Category, (category) => category.subCategories, { nullable: true, onDelete: 'SET NULL' })
   parentCategory: Category;
 
   @OneToMany(() => Category, (category) => category.parentCategory)
   subCategories: Category[];
-
-  @CreateDateColumn()
-  createdAt: Date;
-
-  @UpdateDateColumn()
-  updatedAt: Date;
-
-  @DeleteDateColumn()
-  deletedAt: Date;
 }

@@ -5,6 +5,6 @@ import { ProductsModule } from './products/products.module';
 import { DatabaseModule } from './database/database.module';
 
 @Module({
-  imports: [DatabaseModule, CategoriesModule, ProductsModule],
+  imports: [DatabaseModule, CategoriesModule, ProductsModule], // Only required modules
 })
 export class AppModule {}
