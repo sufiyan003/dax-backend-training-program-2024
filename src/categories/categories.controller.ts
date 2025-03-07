@@ -46,7 +46,7 @@ export class CategoriesController {
   }
 
   @Get('/retrieve')
-  @ApiOperation({ summary: 'Retrieve all deleted categories (soft & hard delete)' })
+  @ApiOperation({ summary: 'Retrieve all deleted categories (soft or hard delete)' })
   retrieveDeleted() {
     return this.categoriesService.retrieveDeleted();
   }

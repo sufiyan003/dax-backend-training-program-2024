@@ -20,7 +20,7 @@ export class ProductsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all products with pagination' })
+  @ApiOperation({ summary: 'Get all products' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
   @ApiQuery({ name: 'search', required: false, type: String, example: 'laptop' })
@@ -56,7 +56,7 @@ export class ProductsController {
   }
 
   @Get('/deleted')
-  @ApiOperation({ summary: 'Retrieve deleted products (soft or hard)' })
+  @ApiOperation({ summary: 'Retrieve all deleted products (soft or hard delete)' })
   @ApiQuery({ name: 'type', required: false, type: String, enum: ['soft', 'hard'], example: 'soft' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })

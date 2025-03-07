@@ -23,7 +23,6 @@ export class CategoriesService {
         throw new NotFoundException('Parent category not found');
       }
     }
-
     const newCategory = this.categoryRepository.create(createCategoryDto);
     return this.categoryRepository.save(newCategory);
   }
