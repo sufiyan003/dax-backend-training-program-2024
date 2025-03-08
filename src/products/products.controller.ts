@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Param, Delete, Query, Patch, UseInterceptors, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, Patch, UseInterceptors, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { LoggingInterceptor } from '../shared/interceptors/logging.interceptor';
 import { ResponseInterceptor } from '../shared/interceptors/success-response.interceptor';
-import { ApiTags, ApiQuery, ApiParam, ApiBody, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiQuery, ApiParam, ApiBody, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from '../auth/auth.guard';
+import { IsAdmin, Public } from 'src/decorators/is-roles.decorator';
 
 @ApiTags('Products')
 @Controller('products')
@@ -13,14 +15,18 @@ export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Create a new product' })
+  @UseGuards(AuthGuard) // Require authentication
+  @ApiBearerAuth() // Show authentication in Swagger
+  @IsAdmin() // Only admins can create products
+  @ApiOperation({ summary: 'Create a new product (Admin only)' })
   @ApiBody({ type: CreateProductDto })
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all products' })
+  @Public() // Allow public access
+  @ApiOperation({ summary: 'Get all products (Public)' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
   @ApiQuery({ name: 'search', required: false, type: String, example: 'laptop' })
@@ -33,14 +39,18 @@ export class ProductsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a product by ID' })
+  @Public() // Allow public access
+  @ApiOperation({ summary: 'Get a product by ID (Public)' })
   @ApiParam({ name: 'id', type: String })
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(id);
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update a product by ID' })
+  @UseGuards(AuthGuard) // Require authentication
+  @ApiBearerAuth()
+  @IsAdmin() // Only admins can update products
+  @ApiOperation({ summary: 'Update a product by ID (Admin only)' })
   @ApiParam({ name: 'id', type: String })
   @ApiBody({ type: UpdateProductDto })
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
@@ -48,7 +58,10 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Soft or hard delete a product' })
+  @UseGuards(AuthGuard) // Require authentication
+  @ApiBearerAuth()
+  @IsAdmin() // Only admins can delete products
+  @ApiOperation({ summary: 'Soft or hard delete a product (Admin only)' })
   @ApiParam({ name: 'id', type: String })
   @ApiQuery({ name: 'hardDelete', required: false, type: Boolean, example: false })
   delete(@Param('id') id: string, @Query('hardDelete') hardDelete: boolean = false) {
@@ -56,7 +69,10 @@ export class ProductsController {
   }
 
   @Get('/deleted')
-  @ApiOperation({ summary: 'Retrieve all deleted products (soft or hard delete)' })
+  @UseGuards(AuthGuard) // Require authentication
+  @ApiBearerAuth()
+  @IsAdmin() // Only admins can retrieve deleted products
+  @ApiOperation({ summary: 'Retrieve all deleted products (Admin only)' })
   @ApiQuery({ name: 'type', required: false, type: String, enum: ['soft', 'hard'], example: 'soft' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
